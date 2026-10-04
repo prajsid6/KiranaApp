@@ -134,7 +134,7 @@ function applyLanguage(){
   document.getElementById("languageToggle").setAttribute("aria-label", language === "en" ? "Switch language to Kannada" : "ಭಾಷೆಯನ್ನು ಇಂಗ್ಲಿಷ್‌ಗೆ ಬದಲಾಯಿಸಿ");
   document.querySelector(".nav-menu summary").setAttribute("aria-label", language === "en" ? "Open menu" : "ಮೆನು ತೆರೆಯಿರಿ");
   document.querySelectorAll(".marquee-message").forEach((message, index) => {
-    message.textContent = text.marquee[Math.floor(index / 2)];
+    message.textContent = text.marquee[index % text.marquee.length];
   });
   setText(".eyebrow", text.eyebrow);
   document.querySelector(".hero h1").innerHTML = text.heroTitle;

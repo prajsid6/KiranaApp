@@ -23,16 +23,11 @@ button,input,textarea{font:inherit} button{cursor:pointer}
 .nav-menu summary:hover,.nav-menu[open] summary{background:var(--mint);border-color:#b9d9d0}
 .nav-menu-panel{position:absolute;top:calc(100% + 9px);right:0;z-index:20;display:grid;gap:8px;min-width:205px;padding:10px;border:1px solid var(--line);border-radius:14px;background:white;box-shadow:var(--shadow)}
 .nav-menu-panel .owner-login-btn{text-align:left;text-decoration:none}
-.marquee{overflow:hidden;background:#fff;border-bottom:1px solid var(--line);padding:8px 0}
-.marquee-line{overflow:hidden}
+.marquee{overflow:hidden;background:#fff;border-bottom:1px solid var(--line);padding:13px 0}
 .marquee-track{display:flex;width:max-content;animation:marquee-scroll 34s linear infinite}
-.marquee-message{display:flex;align-items:center;gap:10px;flex:none;padding:8px 26px;color:var(--teal-dark);font-size:13px;font-weight:750;white-space:nowrap}
+.marquee-group{display:flex;align-items:center;flex:none}
+.marquee-message{display:flex;align-items:center;gap:10px;flex:none;padding:0 26px;color:var(--teal-dark);font-size:13px;font-weight:750;white-space:nowrap}
 .marquee-message:before{content:"";width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#74b6a5}
-.marquee-line:nth-child(2) .marquee-track{animation-duration:39s}
-.marquee-line:nth-child(3) .marquee-track{animation-duration:31s}
-.marquee-line:nth-child(4) .marquee-track{animation-duration:43s}
-.marquee-line:nth-child(5) .marquee-track{animation-duration:36s}
-.marquee-line:nth-child(6) .marquee-track{animation-duration:40s}
 .marquee:hover .marquee-track{animation-play-state:paused}
 @keyframes marquee-scroll{from{transform:translateX(-50%)}to{transform:translateX(0)}}
 .hero{overflow:hidden;background:linear-gradient(135deg,#f5fbf8 0%,#e6f4ef 100%);border-bottom:1px solid var(--line)}
@@ -171,4 +166,4 @@ button,input,textarea{font:inherit} button{cursor:pointer}
 .stock-list li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
 .stock-list li:last-child{border-bottom:0}
 .stock-status{color:#31814c;font-size:12px;font-weight:750;white-space:nowrap}
-@media(prefers-reduced-motion:reduce){.marquee{overflow:visible}.marquee-line{overflow:visible}.marquee-track{width:auto;animation:none}.marquee-message[aria-hidden="true"]{display:none}}
+@media(prefers-reduced-motion:reduce){.marquee-track{width:auto;animation:none}.marquee-group[aria-hidden="true"]{display:none}.marquee-group{flex-wrap:wrap;justify-content:center}}
