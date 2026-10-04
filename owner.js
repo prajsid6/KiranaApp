@@ -30,6 +30,7 @@ let database;
 let confirmation;
 let recaptcha;
 let activeUser;
+let firebaseInitialized = false;
 
 function isFirebaseConfigured(){
   const config = window.kiranaFirebaseConfig;
@@ -42,16 +43,28 @@ function setStatus(message){
 }
 
 function initializeFirebase(){
+  if(firebaseInitialized && auth && database){
+    return;
+  }
+  if(!isFirebaseConfigured()){
+    return;
+  }
+
   const app = getApps().length ? getApp() : initializeApp(window.kiranaFirebaseConfig);
   const appCheckSiteKey = window.kiranaFirebaseConfig.appCheckSiteKey;
   if(appCheckSiteKey && !appCheckSiteKey.startsWith("YOUR_")){
-    initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider(appCheckSiteKey),
-      isTokenAutoRefreshEnabled: true
-    });
+    if(!app.__kiranaAppCheckInitialized){
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(appCheckSiteKey),
+        isTokenAutoRefreshEnabled: true
+      });
+      app.__kiranaAppCheckInitialized = true;
+    }
   }
+
   auth = getAuth(app);
   database = getFirestore(app);
+  firebaseInitialized = true;
 }
 
 function resetOtp(){
@@ -194,10 +207,20 @@ document.getElementById("reviewerPhoneForm").addEventListener("submit", async ev
   event.preventDefault();
   const phone = document.getElementById("reviewerPhone").value.trim();
   const sendButton = document.getElementById("sendReviewerOtp");
+  if(!phone){
+    setStatus("Enter a valid phone number before requesting a code.");
+    return;
+  }
   sendButton.disabled = true;
   setStatus("");
   try{
     initializeFirebase();
+    if(!auth){
+      throw new Error("Firebase authentication is not available.");
+    }
+    if(recaptcha){
+      recaptcha.clear();
+    }
     recaptcha = new RecaptchaVerifier(auth, "reviewer-recaptcha", {size: "invisible"});
     confirmation = await signInWithPhoneNumber(auth, phone, recaptcha);
     phoneForm.classList.add("hidden");
