@@ -1,4 +1,4 @@
-# KiranaNear — Static Kirana Directory
+# Kirana Store — Static Kirana Directory
 
 A backend-free responsive website for listing local Kirana shops.
 
