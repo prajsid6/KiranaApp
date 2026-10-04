@@ -17,26 +17,47 @@
     </div>
   </header>
 
-  <main class="container owner-dashboard">
-    <section class="owner-intro">
-      <p class="kicker">SHOP MANAGEMENT</p>
-      <h1>Shop owner login</h1>
-      <p>Sign in with the phone number submitted for your approved shop to update its details and available items.</p>
-    </section>
+  <main class="container owner-dashboard auth-page">
+    <section class="auth-layout" id="ownerLoginPanel">
+      <div class="auth-welcome">
+        <a class="auth-brand" href="index.html" aria-label="Kirana Store home">
+          <span class="brand-mark">K</span>
+          <span>Kirana <span class="brand-accent">Store</span></span>
+        </a>
+        <div class="auth-welcome-copy">
+          <p class="auth-eyebrow">SHOP MANAGEMENT</p>
+          <h1>Your shop,<br>closer to home.</h1>
+          <p>Keep your neighborhood store up to date and easy for customers to find.</p>
+          <ul class="auth-benefits">
+            <li><span aria-hidden="true">✓</span> Update your shop details</li>
+            <li><span aria-hidden="true">✓</span> Keep available items current</li>
+            <li><span aria-hidden="true">✓</span> Sign in securely with your phone</li>
+          </ul>
+        </div>
+        <p class="auth-welcome-foot">Made for local businesses, and the people who love them.</p>
+      </div>
 
-    <section class="owner-login-panel" id="ownerLoginPanel">
-      <form id="ownerPhoneForm">
-        <label for="ownerPhone">Shop owner phone number (+country code)</label>
-        <input id="ownerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+919876543210" pattern="[+][1-9][0-9]{7,14}" required>
-        <div id="owner-recaptcha"></div>
-        <button class="primary-btn reviewer-submit" id="sendOwnerOtp" type="submit">Send verification code</button>
-      </form>
-      <form id="ownerOtpForm" class="hidden">
-        <label for="ownerOtp">6-digit verification code</label>
-        <input id="ownerOtp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
-        <button class="primary-btn reviewer-submit" id="verifyOwnerOtp" type="submit">Verify and sign in</button>
-      </form>
-      <button class="owner-back-btn hidden" id="useAnotherPhone" type="button">Use another number</button>
+      <section class="owner-login-panel" aria-labelledby="loginTitle">
+        <div class="auth-card-heading">
+          <p class="kicker">SHOP OWNER PORTAL</p>
+          <h2 id="loginTitle">Welcome back</h2>
+          <p>Sign in with the phone number linked to your approved shop.</p>
+        </div>
+        <form id="ownerPhoneForm">
+          <label for="ownerPhone">Phone number <span>Include your country code</span></label>
+          <input id="ownerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+919876543210" pattern="[+][1-9][0-9]{7,14}" required>
+          <div id="owner-recaptcha"></div>
+          <button class="primary-btn reviewer-submit" id="sendOwnerOtp" type="submit">Send verification code <span aria-hidden="true">→</span></button>
+        </form>
+        <form id="ownerOtpForm" class="hidden">
+          <label for="ownerOtp">6-digit verification code</label>
+          <input id="ownerOtp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+          <button class="primary-btn reviewer-submit" id="verifyOwnerOtp" type="submit">Verify and sign in <span aria-hidden="true">→</span></button>
+        </form>
+        <button class="owner-back-btn hidden" id="useAnotherPhone" type="button">Use another number</button>
+        <p class="auth-security-note"><span aria-hidden="true">◇</span> We’ll text a one-time code to verify it’s you.</p>
+        <p id="ownerStatus" class="reviewer-status auth-status" role="status" aria-live="polite"></p>
+      </section>
     </section>
 
     <section class="reviewer-dashboard hidden" id="ownerDashboard">
@@ -49,8 +70,6 @@
       </div>
       <div id="ownedShops" class="owned-shops"></div>
     </section>
-
-    <p id="ownerStatus" class="reviewer-status" role="status" aria-live="polite"></p>
   </main>
 
   <script src="firebase-config.js"></script>
