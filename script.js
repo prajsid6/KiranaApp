@@ -1,29 +1,32 @@
-const shops = [
+const initialShops = [
   {name:"Sri Lakshmi Stores", area:"Koramangala", phone:"919876543210", ownerPhone:"919876543210", openTime:"07:00", closeTime:"22:00", openDays:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], items:["Rice","Dal","Oil","Sugar","Biscuits","Milk"], logo:""},
   {name:"Namma Daily Needs", area:"HSR Layout", phone:"919812345678", ownerPhone:"919812345678", openTime:"08:00", closeTime:"21:30", openDays:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], items:["Groceries","Snacks","Beverages","Soap","Shampoo","Oil","Sugar","Biscuits","Milk"], logo:""},
   {name:"Ganesh Provision Store", area:"BTM Layout", phone:"919900112233", ownerPhone:"919900112233", openTime:"07:30", closeTime:"21:00", openDays:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], items:["Rice","Flour","Spices","Oil","Dry Fruits"], logo:""},
 ];
-
-// Replace this number with the WhatsApp number that should receive shop-add requests.
-const REQUEST_WHATSAPP = "919999999999";
 
 const grid = document.getElementById("shopGrid");
 const search = document.getElementById("searchInput");
 const clear = document.getElementById("clearBtn");
 const resultText = document.getElementById("resultText");
 const empty = document.getElementById("emptyState");
-const ownerLoginModal = document.getElementById("ownerLoginModal");
-const ownerPhoneForm = document.getElementById("ownerPhoneForm");
-const ownerOtpForm = document.getElementById("ownerOtpForm");
 let language = "en";
-let firebaseAuth = null;
-let firebaseAuthSdk = null;
-let otpConfirmation = null;
-let recaptchaVerifier = null;
+let firebaseApp = null;
+let firestore = null;
+let storage = null;
+let firestoreSdk = null;
+let storageSdk = null;
+let shops = [...initialShops];
 
 const translations = {
   en: {
-    "Add Your Shop": "+ Add Your Shop",
+    ownerLogin: "Shop owner login",
+    requestAdd: "Request to add my shop",
+    requestPending: "Send shop request for review",
+    requestSuccess: "Your shop request was submitted. It will appear after verification.",
+    requestFailed: "Could not submit your request. Please try again.",
+    firebaseNotConfigured: "Shop request submission is not configured yet. Please contact the site administrator.",
+    directoryNotConfigured: "Online publishing is not configured. Showing featured shops.",
+    directoryLoadFailed: "Approved listings could not be loaded. Showing featured shops.",
     eyebrow: "LOCAL • SIMPLE • TRUSTED",
     heroTitle: 'Your neighborhood<br><span>kirana, online.</span>',
     heroDescription: "Discover nearby grocery shops, check what they offer, and contact them directly on WhatsApp.",
@@ -37,12 +40,11 @@ const translations = {
     trySearch: "Try another shop name, item or area.",
     growBusiness: "GROW YOUR LOCAL BUSINESS",
     ownShop: "Own a Kirana shop?",
-    addDescription: "Add your shop to this directory. No app or website is required — just send your details through WhatsApp.",
-    requestAdd: "Request to add my shop",
-    footer: "Made for local businesses",
+    addDescription: "Submit your shop details for review. Approved shops are published in this directory.",
+    footer: "Made for local businesses, and the people who love them.",
     joinDirectory: "JOIN THE DIRECTORY",
     modalTitle: "Add your shop",
-    modalSub: "Enter your shop details. We'll prepare a WhatsApp message for you.",
+    modalSub: "Enter your details. A reviewer will verify your shop before it is published.",
     view: "View",
     viewStock: "View stock details",
     stockDetails: "STOCK DETAILS",
@@ -58,33 +60,24 @@ const translations = {
     openDaysLabel: "Open days",
     days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     selectDayError: "Select at least one open day.",
-    attachImage: "Please attach the selected shop image in this WhatsApp chat.",
-    submit: "◉ Send request on WhatsApp",
-    formNote: "Your details are not stored by this website.",
+    formNote: "Shop requests are stored securely and reviewed before publication.",
     close: "Close",
     clear: "Clear search",
     openDaily: "● Open daily",
     whatsapp: "WhatsApp",
     call: "Call",
     visitStore: "Visit store",
-    ownerLogin: "Shop owner login",
-    ownerLoginDescription: "Verify your shop phone number to open its profile.",
-    ownerPhone: "Phone number (+country code)",
-    sendOtp: "Send OTP",
-    otpCode: "6-digit code",
-    verifyOtp: "Verify and open profile",
-    useAnotherPhone: "Use another number",
-    otpSent: "Verification code sent. Check your phone.",
-    otpSendFailed: "Could not send the code. Check the number and Firebase setup, then try again.",
-    otpVerifyFailed: "That code could not be verified. Check it and try again.",
-    phoneNotMapped: "This verified number is not linked to a shop profile.",
-    firebaseNotConfigured: "Phone login is not configured yet. Add your Firebase web settings and enable Phone sign-in.",
-    profileContact: "Verified phone",
-    signOut: "Sign out",
     result: n => `${n} shop${n === 1 ? "" : "s"} found`
   },
   kn: {
-    "Add Your Shop": "+ ನಿಮ್ಮ ಅಂಗಡಿ ಸೇರಿಸಿ",
+    ownerLogin: "ಅಂಗಡಿ ಮಾಲೀಕರ ಲಾಗಿನ್",
+    requestAdd: "ನನ್ನ ಅಂಗಡಿ ಸೇರಿಸಲು ವಿನಂತಿಸಿ",
+    requestPending: "ಪರಿಶೀಲನೆಗಾಗಿ ಅಂಗಡಿ ವಿನಂತಿ ಕಳುಹಿಸಿ",
+    requestSuccess: "ನಿಮ್ಮ ಅಂಗಡಿ ವಿನಂತಿಯನ್ನು ಕಳುಹಿಸಲಾಗಿದೆ. ಪರಿಶೀಲನೆಯ ನಂತರ ಪಟ್ಟಿ ಮಾಡಲಾಗುತ್ತದೆ.",
+    requestFailed: "ವಿನಂತಿಯನ್ನು ಕಳುಹಿಸಲಾಗಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+    firebaseNotConfigured: "ಅಂಗಡಿ ವಿನಂತಿ ಸಲ್ಲಿಕೆ ಇನ್ನೂ ಹೊಂದಿಸಿಲ್ಲ. ದಯವಿಟ್ಟು ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.",
+    directoryNotConfigured: "ಆನ್‌ಲೈನ್ ಪ್ರಕಟಣೆ ಹೊಂದಿಸಿಲ್ಲ. ವೈಶಿಷ್ಟ್ಯಗೊಳಿಸಿದ ಅಂಗಡಿಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ.",
+    directoryLoadFailed: "ಅನುಮೋದಿತ ಅಂಗಡಿಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗಲಿಲ್ಲ. ವೈಶಿಷ್ಟ್ಯಗೊಳಿಸಿದ ಅಂಗಡಿಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ.",
     eyebrow: "ಸ್ಥಳೀಯ • ಸರಳ • ವಿಶ್ವಾಸಾರ್ಹ",
     heroTitle: 'ನಿಮ್ಮ ನೆರೆಹೊರೆಯ<br><span>ಕಿರಾಣಿ ಅಂಗಡಿ, ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ.</span>',
     heroDescription: "ಹತ್ತಿರದ ಕಿರಾಣಿ ಅಂಗಡಿಗಳನ್ನು ಹುಡುಕಿ, ಅವುಗಳ ಉತ್ಪನ್ನಗಳನ್ನು ನೋಡಿ, ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸಿ.",
@@ -98,12 +91,11 @@ const translations = {
     trySearch: "ಬೇರೆ ಅಂಗಡಿ ಹೆಸರು, ವಸ್ತು ಅಥವಾ ಪ್ರದೇಶ ಹುಡುಕಿ.",
     growBusiness: "ನಿಮ್ಮ ಸ್ಥಳೀಯ ವ್ಯಾಪಾರ ಬೆಳೆಸಿ",
     ownShop: "ನಿಮ್ಮದೇ ಕಿರಾಣಿ ಅಂಗಡಿ ಇದೆಯೇ?",
-    addDescription: "ಈ ಪಟ್ಟಿಗೆ ನಿಮ್ಮ ಅಂಗಡಿಯನ್ನು ಸೇರಿಸಿ. ಆಪ್ ಅಥವಾ ವೆಬ್‌ಸೈಟ್ ಅಗತ್ಯವಿಲ್ಲ; ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ವಿವರಗಳನ್ನು ಕಳುಹಿಸಿ.",
-    requestAdd: "ನನ್ನ ಅಂಗಡಿ ಸೇರಿಸಲು ವಿನಂತಿಸಿ",
-    footer: "ಸ್ಥಳೀಯ ವ್ಯಾಪಾರಗಳಿಗಾಗಿ",
+    addDescription: "ಪರಿಶೀಲನೆಗಾಗಿ ನಿಮ್ಮ ಅಂಗಡಿ ವಿವರಗಳನ್ನು ಸಲ್ಲಿಸಿ. ಅನುಮೋದಿತ ಅಂಗಡಿಗಳನ್ನು ಇಲ್ಲಿ ಪ್ರಕಟಿಸಲಾಗುತ್ತದೆ.",
+    footer: "ಸ್ಥಳೀಯ ವ್ಯಾಪಾರಗಳಿಗಾಗಿ ಮತ್ತು ಅವುಗಳನ್ನು ಪ್ರೀತಿಸುವ ಜನರಿಗಾಗಿ.",
     joinDirectory: "ಅಂಗಡಿಗಳ ಪಟ್ಟಿಗೆ ಸೇರಿ",
     modalTitle: "ನಿಮ್ಮ ಅಂಗಡಿ ಸೇರಿಸಿ",
-    modalSub: "ನಿಮ್ಮ ಅಂಗಡಿ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ. ನಿಮಗಾಗಿ ವಾಟ್ಸಾಪ್ ಸಂದೇಶವನ್ನು ಸಿದ್ಧಪಡಿಸುತ್ತೇವೆ.",
+    modalSub: "ನಿಮ್ಮ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ. ಪ್ರಕಟಿಸುವ ಮೊದಲು ಪರಿಶೀಲಕರು ಅಂಗಡಿಯನ್ನು ಪರಿಶೀಲಿಸುತ್ತಾರೆ.",
     view: "ವೀಕ್ಷಿಸಿ",
     viewStock: "ಸ್ಟಾಕ್ ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ",
     stockDetails: "ಸ್ಟಾಕ್ ವಿವರಗಳು",
@@ -119,29 +111,13 @@ const translations = {
     openDaysLabel: "ತೆರೆದಿರುವ ದಿನಗಳು",
     days: ["ಸೋಮ", "ಮಂಗಳ", "ಬುಧ", "ಗುರು", "ಶುಕ್ರ", "ಶನಿ", "ಭಾನು"],
     selectDayError: "ಕನಿಷ್ಠ ಒಂದು ದಿನವನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
-    attachImage: "ಈ ವಾಟ್ಸಾಪ್ ಚಾಟ್‌ನಲ್ಲಿ ಆಯ್ಕೆ ಮಾಡಿದ ಅಂಗಡಿಯ ಚಿತ್ರವನ್ನು ಲಗತ್ತಿಸಿ.",
-    submit: "◉ ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ವಿನಂತಿ ಕಳುಹಿಸಿ",
-    formNote: "ನಿಮ್ಮ ವಿವರಗಳನ್ನು ಈ ವೆಬ್‌ಸೈಟ್‌ನಲ್ಲಿ ಸಂಗ್ರಹಿಸುವುದಿಲ್ಲ.",
+    formNote: "ಅಂಗಡಿ ವಿನಂತಿಗಳನ್ನು ಸುರಕ್ಷಿತವಾಗಿ ಸಂಗ್ರಹಿಸಿ ಪ್ರಕಟಿಸುವ ಮೊದಲು ಪರಿಶೀಲಿಸಲಾಗುತ್ತದೆ.",
     close: "ಮುಚ್ಚಿ",
     clear: "ಹುಡುಕಾಟ ತೆರವುಗೊಳಿಸಿ",
     openDaily: "● ಪ್ರತಿದಿನ ತೆರೆದಿರುತ್ತದೆ",
     whatsapp: "ವಾಟ್ಸಾಪ್",
     call: "ಕರೆ",
     visitStore: "ಅಂಗಡಿಗೆ ಭೇಟಿ",
-    ownerLogin: "ಅಂಗಡಿ ಮಾಲೀಕರ ಲಾಗಿನ್",
-    ownerLoginDescription: "ಪ್ರೊಫೈಲ್ ತೆರೆಯಲು ನಿಮ್ಮ ಅಂಗಡಿಯ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ಪರಿಶೀಲಿಸಿ.",
-    ownerPhone: "ಫೋನ್ ಸಂಖ್ಯೆ (+ದೇಶದ ಕೋಡ್)",
-    sendOtp: "OTP ಕಳುಹಿಸಿ",
-    otpCode: "6 ಅಂಕಿಯ ಕೋಡ್",
-    verifyOtp: "ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಪ್ರೊಫೈಲ್ ತೆರೆಯಿರಿ",
-    useAnotherPhone: "ಬೇರೆ ಸಂಖ್ಯೆಯನ್ನು ಬಳಸಿ",
-    otpSent: "ಪರಿಶೀಲನಾ ಕೋಡ್ ಕಳುಹಿಸಲಾಗಿದೆ. ನಿಮ್ಮ ಫೋನ್ ಪರಿಶೀಲಿಸಿ.",
-    otpSendFailed: "ಕೋಡ್ ಕಳುಹಿಸಲಾಗಲಿಲ್ಲ. ಸಂಖ್ಯೆ ಮತ್ತು Firebase ಸೆಟಪ್ ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
-    otpVerifyFailed: "ಕೋಡ್ ಪರಿಶೀಲಿಸಲಾಗಲಿಲ್ಲ. ಸರಿಯಾದ ಕೋಡ್ ನಮೂದಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
-    phoneNotMapped: "ಈ ಪರಿಶೀಲಿಸಿದ ಸಂಖ್ಯೆಗೆ ಅಂಗಡಿ ಪ್ರೊಫೈಲ್ ಜೋಡಿಸಲಾಗಿಲ್ಲ.",
-    firebaseNotConfigured: "ಫೋನ್ ಲಾಗಿನ್ ಇನ್ನೂ ಹೊಂದಿಸಿಲ್ಲ. Firebase ವೆಬ್ ಸೆಟ್ಟಿಂಗ್ ಸೇರಿಸಿ ಮತ್ತು Phone sign-in ಸಕ್ರಿಯಗೊಳಿಸಿ.",
-    profileContact: "ಪರಿಶೀಲಿಸಿದ ಫೋನ್",
-    signOut: "ಲಾಗ್ ಔಟ್",
     result: n => `${n} ಅಂಗಡಿ${n === 1 ? "" : "ಗಳು"} ಕಂಡುಬಂದಿವೆ`
   }
 };
@@ -152,7 +128,7 @@ function applyLanguage(){
   document.documentElement.lang = language === "kn" ? "kn" : "en";
   document.getElementById("languageToggle").textContent = language === "en" ? "ಕನ್ನಡ" : "English";
   document.getElementById("languageToggle").setAttribute("aria-label", language === "en" ? "Switch language to Kannada" : "ಭಾಷೆಯನ್ನು ಇಂಗ್ಲಿಷ್‌ಗೆ ಬದಲಾಯಿಸಿ");
-  document.querySelector(".nav-add").textContent = text["Add Your Shop"];
+  document.querySelector(".nav-menu summary").setAttribute("aria-label", language === "en" ? "Open menu" : "ಮೆನು ತೆರೆಯಿರಿ");
   setText(".eyebrow", text.eyebrow);
   document.querySelector(".hero h1").innerHTML = text.heroTitle;
   setText(".hero-copy>p", text.heroDescription);
@@ -168,7 +144,7 @@ function applyLanguage(){
   setText(".add-section h2", text.ownShop);
   setText(".add-section p:not(.kicker)", text.addDescription);
   document.querySelector(".primary-btn").innerHTML = `${text.requestAdd} <span>→</span>`;
-  document.querySelector(".footer-inner span:last-child").textContent = text.footer;
+  document.querySelector(".footer-bottom span:last-child").textContent = text.footer;
   setText(".modal-box .kicker", text.joinDirectory);
   setText("#modalTitle", text.modalTitle);
   setText(".modal-sub", text.modalSub);
@@ -182,19 +158,11 @@ function applyLanguage(){
   });
   document.querySelector("#shopForm label span").textContent = text.imageOptional;
   document.getElementById("logoStatus").textContent = document.getElementById("shopImage").files[0]?.name || text.imageStatus;
-  document.querySelector(".whatsapp-btn").innerHTML = text.submit;
+  document.getElementById("submitShopRequest").textContent = text.requestPending;
   setText(".form-note", text.formNote);
   document.querySelector(".modal-close").setAttribute("aria-label", text.close);
   document.querySelector("#stockModal .modal-close").setAttribute("aria-label", text.close);
-  document.getElementById("ownerLoginButton").textContent = text.ownerLogin;
-  document.getElementById("ownerLoginTitle").textContent = text.ownerLogin;
-  document.getElementById("ownerLoginDescription").textContent = text.ownerLoginDescription;
-  document.getElementById("ownerPhoneLabel").textContent = text.ownerPhone;
-  document.getElementById("ownerOtpLabel").textContent = text.otpCode;
-  document.getElementById("sendOtpButton").textContent = text.sendOtp;
-  document.getElementById("verifyOtpButton").textContent = text.verifyOtp;
-  document.getElementById("ownerBackButton").textContent = text.useAnotherPhone;
-  document.getElementById("ownerSignOutButton").textContent = text.signOut;
+  document.getElementById("ownerLoginLink").textContent = text.ownerLogin;
   clear.setAttribute("aria-label", text.clear);
   doSearch();
 }
@@ -214,7 +182,7 @@ function formatTime(value){
 
 function formatFormTime(hour, minute, period){
   const hour24 = Number(hour) % 12 + (period === "PM" ? 12 : 0);
-  return formatTime(`${String(hour24).padStart(2, "0")}:${String(minute).padStart(2, "0")}`);
+  return `${String(hour24).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
 }
 
 function formatDailyHours(shop){
@@ -279,6 +247,7 @@ grid.addEventListener("click", event=>{
 });
 clear.addEventListener("click",()=>{search.value="";doSearch();search.focus();});
 render(shops);
+loadPublishedShops();
 
 const modal = document.getElementById("modal");
 const stockModal = document.getElementById("stockModal");
@@ -297,115 +266,59 @@ function openStockModal(index){
 function closeStockModal(){stockModal.classList.add("hidden");if(modal.classList.contains("hidden"))document.body.style.overflow=""}
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closeStockModal()}});
 
-function setOwnerLoginStatus(message){
-  document.getElementById("ownerLoginStatus").textContent = message;
-}
-
 function isFirebaseConfigured(){
   const config = window.kiranaFirebaseConfig;
   return config && [config.apiKey, config.authDomain, config.projectId, config.appId].every(value => value && !value.startsWith("YOUR_"));
 }
 
-async function initializeFirebaseAuth(){
-  if(firebaseAuth) return;
-  const appSdk = await import("https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js");
-  firebaseAuthSdk = await import("https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js");
-  const app = appSdk.getApps().length ? appSdk.getApp() : appSdk.initializeApp(window.kiranaFirebaseConfig);
-  firebaseAuth = firebaseAuthSdk.getAuth(app);
-}
-
-function clearOwnerOtpState(){
-  otpConfirmation = null;
-  ownerOtpForm.classList.add("hidden");
-  ownerPhoneForm.classList.remove("hidden");
-  document.getElementById("ownerBackButton").classList.add("hidden");
-  document.getElementById("ownerProfile").classList.add("hidden");
-  document.getElementById("ownerOtp").value = "";
-  setOwnerLoginStatus("");
-  if(recaptchaVerifier){
-    recaptchaVerifier.clear();
-    recaptchaVerifier = null;
+async function initializeFirebaseData(){
+  if(firestore) return;
+  if(!isFirebaseConfigured()) throw new Error("Firebase is not configured.");
+  const [appSdk, appCheckSdk, firestoreModule, storageModule] = await Promise.all([
+    import("https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js"),
+    import("https://www.gstatic.com/firebasejs/11.10.0/firebase-app-check.js"),
+    import("https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js"),
+    import("https://www.gstatic.com/firebasejs/11.10.0/firebase-storage.js")
+  ]);
+  firebaseApp = appSdk.getApps().length ? appSdk.getApp() : appSdk.initializeApp(window.kiranaFirebaseConfig);
+  const appCheckSiteKey = window.kiranaFirebaseConfig.appCheckSiteKey;
+  if(appCheckSiteKey && !appCheckSiteKey.startsWith("YOUR_")){
+    appCheckSdk.initializeAppCheck(firebaseApp, {
+      provider: new appCheckSdk.ReCaptchaV3Provider(appCheckSiteKey),
+      isTokenAutoRefreshEnabled: true
+    });
   }
+  firestoreSdk = firestoreModule;
+  storageSdk = storageModule;
+  firestore = firestoreSdk.getFirestore(firebaseApp);
+  storage = storageSdk.getStorage(firebaseApp);
 }
 
-document.getElementById("ownerLoginButton").addEventListener("click",()=>{
-  clearOwnerOtpState();
-  ownerLoginModal.classList.remove("hidden");
-  document.body.style.overflow="hidden";
-  document.getElementById("ownerPhone").focus();
-});
-document.querySelectorAll("[data-close-owner-login]").forEach(button=>button.addEventListener("click",()=>{
-  ownerLoginModal.classList.add("hidden");
-  if(modal.classList.contains("hidden") && stockModal.classList.contains("hidden")) document.body.style.overflow="";
-}));
-
-ownerPhoneForm.addEventListener("submit",async event=>{
-  event.preventDefault();
-  const phone = document.getElementById("ownerPhone").value.trim();
-  const text = translations[language];
-  const sendButton = document.getElementById("sendOtpButton");
+async function loadPublishedShops(){
+  const status = document.getElementById("directoryStatus");
   if(!isFirebaseConfigured()){
-    setOwnerLoginStatus(text.firebaseNotConfigured);
+    status.textContent = translations[language].directoryNotConfigured;
     return;
   }
-  sendButton.disabled = true;
   try{
-    await initializeFirebaseAuth();
-    recaptchaVerifier = new firebaseAuthSdk.RecaptchaVerifier(firebaseAuth,"recaptcha-container",{size:"invisible"});
-    otpConfirmation = await firebaseAuthSdk.signInWithPhoneNumber(firebaseAuth,phone,recaptchaVerifier);
-    ownerPhoneForm.classList.add("hidden");
-    ownerOtpForm.classList.remove("hidden");
-    document.getElementById("ownerBackButton").classList.remove("hidden");
-    setOwnerLoginStatus(text.otpSent);
-    document.getElementById("ownerOtp").focus();
+    await initializeFirebaseData();
+    const snapshot = await firestoreSdk.getDocs(firestoreSdk.collection(firestore, "shops"));
+    shops = [
+      ...initialShops,
+      ...snapshot.docs.map(shopDocument => ({...shopDocument.data(), id: shopDocument.id}))
+    ];
+    status.textContent = "";
+    doSearch();
   }catch(error){
-    if(recaptchaVerifier){recaptchaVerifier.clear();recaptchaVerifier=null;}
-    setOwnerLoginStatus(text.otpSendFailed);
-  }finally{
-    sendButton.disabled = false;
+    console.error("Could not load approved shops:", error);
+    status.textContent = translations[language].directoryLoadFailed;
   }
-});
+}
 
-ownerOtpForm.addEventListener("submit",async event=>{
+document.getElementById("shopForm").addEventListener("submit", async event=>{
   event.preventDefault();
-  if(!otpConfirmation) return;
-  const verifyButton = document.getElementById("verifyOtpButton");
-  verifyButton.disabled = true;
-  try{
-    const credential = await otpConfirmation.confirm(document.getElementById("ownerOtp").value.trim());
-    const verifiedDigits = credential.user.phoneNumber.replace(/\D/g,"");
-    const shop = shops.find(entry=>(entry.ownerPhone || "").replace(/\D/g,"") === verifiedDigits);
-    if(!shop){
-      await firebaseAuthSdk.signOut(firebaseAuth);
-      setOwnerLoginStatus(translations[language].phoneNotMapped);
-      return;
-    }
-    document.getElementById("ownerProfileName").textContent = shop.name;
-    document.getElementById("ownerProfileAddress").textContent = shop.address || shop.area;
-    document.getElementById("ownerProfileContact").textContent = `${translations[language].profileContact}: ${credential.user.phoneNumber}`;
-    document.getElementById("ownerProfile").classList.remove("hidden");
-    document.getElementById("ownerSignOutButton").classList.remove("hidden");
-    ownerOtpForm.classList.add("hidden");
-    document.getElementById("ownerBackButton").classList.add("hidden");
-    setOwnerLoginStatus("");
-  }catch(error){
-    setOwnerLoginStatus(translations[language].otpVerifyFailed);
-  }finally{
-    verifyButton.disabled = false;
-  }
-});
-
-document.getElementById("ownerBackButton").addEventListener("click",clearOwnerOtpState);
-document.getElementById("ownerSignOutButton").addEventListener("click",async()=>{
-  if(firebaseAuth && firebaseAuthSdk) await firebaseAuthSdk.signOut(firebaseAuth);
-  document.getElementById("ownerSignOutButton").classList.add("hidden");
-  clearOwnerOtpState();
-});
-
-document.getElementById("shopForm").addEventListener("submit", e=>{
-  e.preventDefault();
   const image = document.getElementById("shopImage").files[0];
-  if(image && !image.type.startsWith("image/")){
+  if(image && !["image/jpeg", "image/png", "image/webp", "image/gif"].includes(image.type)){
     document.getElementById("logoStatus").textContent = translations[language].imageTypeError;
     return;
   }
@@ -413,18 +326,59 @@ document.getElementById("shopForm").addEventListener("submit", e=>{
     document.getElementById("logoStatus").textContent = translations[language].imageTooLarge;
     return;
   }
-  const data = Object.fromEntries(new FormData(e.target));
+  const data = Object.fromEntries(new FormData(event.target));
   const opening = formatFormTime(data.openHour, data.openMinute, data.openPeriod);
   const closing = formatFormTime(data.closeHour, data.closeMinute, data.closePeriod);
-  const formData = new FormData(e.target);
+  const formData = new FormData(event.target);
   const openDays = formData.getAll("openDays");
   if(!openDays.length){
     document.getElementById("dayError").textContent = translations[language].selectDayError;
     return;
   }
   document.getElementById("dayError").textContent = "";
-  const msg = `*Request to Add My Kirana Shop*\n\n*Shop name:* ${data.shop}\n*Shop image:* ${image ? image.name : "Not provided"}\n${image ? translations[language].attachImage + "\n" : ""}*Contact:* ${data.contact}\n*Address:* ${data.address}\n*Available items:* ${data.items}\n*Open days:* ${formatScheduleDays(openDays)}\n*Shop hours:* ${opening} – ${closing}`;
-  window.open(`https://wa.me/${REQUEST_WHATSAPP}?text=${encodeURIComponent(msg)}`,"_blank","noopener");
+  const items = data.items.split(/[,\n]+/).map(item=>item.trim()).filter(Boolean);
+  if(!items.length){
+    document.getElementById("requestStatus").textContent = translations[language].requestFailed;
+    return;
+  }
+  const submitButton = document.getElementById("submitShopRequest");
+  const requestStatus = document.getElementById("requestStatus");
+  submitButton.disabled = true;
+  requestStatus.textContent = "";
+  try{
+    if(!isFirebaseConfigured()) throw new Error("Firebase is not configured.");
+    await initializeFirebaseData();
+    const sdk = firestoreSdk;
+    const requestReference = sdk.doc(sdk.collection(firestore, "shopRequests"));
+    let logo = "";
+    if(image){
+      const imageReference = storageSdk.ref(storage, `shop-request-images/${requestReference.id}`);
+      await storageSdk.uploadBytes(imageReference, image, {contentType: image.type});
+      logo = await storageSdk.getDownloadURL(imageReference);
+    }
+    await sdk.setDoc(requestReference, {
+      name: data.shop.trim(),
+      phone: data.contact.trim().replace(/\D/g, ""),
+      address: data.address.trim(),
+      openTime: opening,
+      closeTime: closing,
+      openDays,
+      items,
+      logo,
+      status: "pending",
+      createdAt: sdk.serverTimestamp()
+    });
+    requestStatus.textContent = translations[language].requestSuccess;
+    event.target.reset();
+    document.getElementById("logoStatus").textContent = translations[language].imageStatus;
+  }catch(error){
+    console.error("Could not submit shop request:", error);
+    requestStatus.textContent = isFirebaseConfigured()
+      ? translations[language].requestFailed
+      : translations[language].firebaseNotConfigured;
+  }finally{
+    submitButton.disabled = false;
+  }
 });
 
 document.querySelectorAll("input[name='openDays']").forEach(input=>{
@@ -435,7 +389,7 @@ document.getElementById("shopImage").addEventListener("change", event=>{
   const image = event.target.files[0];
   const status = document.getElementById("logoStatus");
   if(!image){ status.textContent = translations[language].imageStatus; return; }
-  if(!image.type.startsWith("image/")){
+  if(!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(image.type)){
     event.target.value = "";
     status.textContent = translations[language].imageTypeError;
     return;

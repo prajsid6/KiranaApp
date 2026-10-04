@@ -13,8 +13,13 @@
     <div class="container nav">
       <a class="brand" href="#"><span class="brand-mark">K</span><span>Kirana <span class="brand-accent">Store</span></span></a>
       <div class="nav-actions">
-        <button id="languageToggle" class="language-toggle" type="button" aria-label="Switch language to Kannada">ಕನ್ನಡ</button>
-        <button id="ownerLoginButton" class="owner-login-btn" type="button">Shop owner login</button>
+        <details class="nav-menu">
+          <summary aria-label="Open menu" title="Menu"><span aria-hidden="true">☰</span></summary>
+          <div class="nav-menu-panel">
+            <button id="languageToggle" class="language-toggle" type="button" aria-label="Switch language to Kannada">ಕನ್ನಡ</button>
+            <a id="ownerLoginLink" class="owner-login-btn" href="owner.html">Shop owner login</a>
+          </div>
+        </details>
       </div>
     </div>
   </header>
@@ -54,6 +59,7 @@
         </div>
         <span id="resultText" class="result-text"></span>
       </div>
+      <p id="directoryStatus" class="field-note" role="status" aria-live="polite"></p>
       <div id="shopGrid" class="shop-grid"></div>
       <div id="emptyState" class="empty hidden">
         <div class="empty-icon">⌕</div>
@@ -126,9 +132,9 @@
           <small id="dayError" class="field-note" role="status"></small>
         </fieldset>
         <label>Available items<textarea name="items" required rows="3" placeholder="Rice, dal, oil, biscuits, milk..."></textarea></label>
-        <button class="whatsapp-btn" type="submit"><span>◉</span> Send request on WhatsApp</button>
+        <button class="whatsapp-btn" id="submitShopRequest" type="submit">Send shop request for review</button>
       </form>
-      <p class="form-note">Your details are not stored by this website.</p>
+      <p class="form-note" id="requestStatus" role="status" aria-live="polite">Your request will be reviewed before it is published.</p>
     </div>
   </div>
 
@@ -141,35 +147,6 @@
       <p class="modal-sub" id="stockModalSummary"></p>
       <ul id="stockItems" class="stock-list"></ul>
     </div>
-  </div>
-
-  <div id="ownerLoginModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="ownerLoginTitle">
-    <div class="modal-backdrop" data-close-owner-login></div>
-    <section class="modal-box owner-login-box">
-      <button class="modal-close" type="button" data-close-owner-login aria-label="Close">×</button>
-      <p class="kicker" id="ownerLoginKicker">SHOP OWNER</p>
-      <h2 id="ownerLoginTitle">Shop owner login</h2>
-      <p class="modal-sub" id="ownerLoginDescription">Verify your shop phone number to open its profile.</p>
-      <form id="ownerPhoneForm">
-        <label id="ownerPhoneLabel" for="ownerPhone">Phone number</label>
-        <input id="ownerPhone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+91 98765 43210" pattern="[+][1-9][0-9]{7,14}" required>
-        <div id="recaptcha-container"></div>
-        <button class="whatsapp-btn" id="sendOtpButton" type="submit">Send OTP</button>
-      </form>
-      <form id="ownerOtpForm" class="hidden">
-        <label id="ownerOtpLabel" for="ownerOtp">6-digit code</label>
-        <input id="ownerOtp" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
-        <button class="whatsapp-btn" id="verifyOtpButton" type="submit">Verify and open profile</button>
-      </form>
-      <button class="owner-back-btn hidden" id="ownerBackButton" type="button">Use another number</button>
-      <p class="field-note owner-login-status" id="ownerLoginStatus" role="status" aria-live="polite"></p>
-      <section id="ownerProfile" class="owner-profile hidden" aria-live="polite">
-        <h3 id="ownerProfileName"></h3>
-        <p id="ownerProfileAddress"></p>
-        <p id="ownerProfileContact"></p>
-      </section>
-      <button class="owner-back-btn hidden" id="ownerSignOutButton" type="button">Sign out</button>
-    </section>
   </div>
 
   <script src="firebase-config.js"></script>

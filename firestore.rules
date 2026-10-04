@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isReviewer() {
+      return request.auth != null
+        && request.auth.token.phone_number in ['+91REPLACE_WITH_REVIEWER_PHONE'];
+    }
+
+    match /shopRequests/{requestId} {
+      allow create: if request.resource.data.keys().hasAll([
+          'name', 'phone', 'address', 'openTime', 'closeTime',
+          'openDays', 'items', 'logo', 'status', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'name', 'phone', 'address', 'openTime', 'closeTime',
+          'openDays', 'items', 'logo', 'status', 'createdAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() >= 8
+        && request.resource.data.phone.size() <= 20
+        && request.resource.data.phone.matches('[0-9]{8,20}')
+        && request.resource.data.address is string
+        && request.resource.data.address.size() > 0
+        && request.resource.data.address.size() <= 300
+        && request.resource.data.openTime is string
+        && request.resource.data.closeTime is string
+        && request.resource.data.openDays is list
+        && request.resource.data.openDays.size() >= 1
+        && request.resource.data.openDays.size() <= 7
+        && request.resource.data.items is list
+        && request.resource.data.items.size() >= 1
+        && request.resource.data.items.size() <= 40
+        && request.resource.data.logo is string
+        && request.resource.data.logo.size() <= 2048
+        && (request.resource.data.logo == ''
+          || request.resource.data.logo.matches('https://firebasestorage.googleapis.com/.*'))
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time;
+
+      allow get, list: if isReviewer();
+
+      allow update: if isReviewer()
+        && resource.data.status == 'pending'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'reviewedAt', 'reviewedBy'
+        ])
+        && request.resource.data.status in ['approved', 'rejected']
+        && request.resource.data.reviewedAt == request.time
+        && request.resource.data.reviewedBy == request.auth.uid;
+
+      allow delete: if false;
+    }
+
+    match /shops/{shopId} {
+      allow read: if true;
+      allow create, update: if isReviewer()
+        && request.resource.data.keys().hasAll([
+          'name', 'phone', 'address', 'area', 'openTime', 'closeTime',
+          'openDays', 'items', 'logo', 'publishedAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'name', 'phone', 'address', 'area', 'openTime', 'closeTime',
+          'openDays', 'items', 'logo', 'publishedAt'
+        ]);
+      allow delete: if false;
+    }
+  }
+}
