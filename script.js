@@ -29,6 +29,7 @@ const translations = {
     directoryNotConfigured: "Online publishing is not configured. Showing featured shops.",
     directoryLoadFailed: "Approved listings could not be loaded. Showing featured shops.",
     eyebrow: "LOCAL • SIMPLE • TRUSTED",
+    marquee: ["Your neighborhood, your market", "Fresh essentials, every day", "Small shops. Big heart.", "Local stores, stronger communities", "Every purchase keeps local thriving", "Trusted service around the corner"],
     heroTitle: 'Your neighborhood<br><span>kirana, online.</span>',
     heroDescription: "Discover nearby grocery shops, check what they offer, and contact them directly on WhatsApp.",
     searchPlaceholder: "Search shops, items or area...",
@@ -81,6 +82,7 @@ const translations = {
     directoryNotConfigured: "ಆನ್‌ಲೈನ್ ಪ್ರಕಟಣೆ ಹೊಂದಿಸಿಲ್ಲ. ವೈಶಿಷ್ಟ್ಯಗೊಳಿಸಿದ ಅಂಗಡಿಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ.",
     directoryLoadFailed: "ಅನುಮೋದಿತ ಅಂಗಡಿಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗಲಿಲ್ಲ. ವೈಶಿಷ್ಟ್ಯಗೊಳಿಸಿದ ಅಂಗಡಿಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ.",
     eyebrow: "ಸ್ಥಳೀಯ • ಸರಳ • ವಿಶ್ವಾಸಾರ್ಹ",
+    marquee: ["ನಿಮ್ಮ ನೆರೆಹೊರೆಯ ಮಾರುಕಟ್ಟೆ", "ಪ್ರತಿದಿನ ತಾಜಾ ಅಗತ್ಯ ವಸ್ತುಗಳು", "ಚಿಕ್ಕ ಅಂಗಡಿಗಳು, ದೊಡ್ಡ ಆತ್ಮೀಯತೆ", "ಸ್ಥಳೀಯ ಅಂಗಡಿಗಳು, ಬಲವಾದ ಸಮುದಾಯಗಳು", "ಪ್ರತಿ ಖರೀದಿಯೂ ಸ್ಥಳೀಯ ವ್ಯಾಪಾರಕ್ಕೆ ಬೆಂಬಲ", "ಮೂಲೆಮೂಲೆಯಲ್ಲಿ ವಿಶ್ವಾಸದ ಸೇವೆ"],
     heroTitle: 'ನಿಮ್ಮ ನೆರೆಹೊರೆಯ<br><span>ಕಿರಾಣಿ ಅಂಗಡಿ, ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ.</span>',
     heroDescription: "ಹತ್ತಿರದ ಕಿರಾಣಿ ಅಂಗಡಿಗಳನ್ನು ಹುಡುಕಿ, ಅವುಗಳ ಉತ್ಪನ್ನಗಳನ್ನು ನೋಡಿ, ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸಿ.",
     searchPlaceholder: "ಅಂಗಡಿ, ವಸ್ತು ಅಥವಾ ಪ್ರದೇಶ ಹುಡುಕಿ...",
@@ -131,6 +133,9 @@ function applyLanguage(){
   document.getElementById("languageToggle").textContent = language === "en" ? "ಕನ್ನಡ" : "English";
   document.getElementById("languageToggle").setAttribute("aria-label", language === "en" ? "Switch language to Kannada" : "ಭಾಷೆಯನ್ನು ಇಂಗ್ಲಿಷ್‌ಗೆ ಬದಲಾಯಿಸಿ");
   document.querySelector(".nav-menu summary").setAttribute("aria-label", language === "en" ? "Open menu" : "ಮೆನು ತೆರೆಯಿರಿ");
+  document.querySelectorAll(".marquee-tag").forEach((tag, index) => {
+    tag.textContent = text.marquee[index % text.marquee.length];
+  });
   setText(".eyebrow", text.eyebrow);
   document.querySelector(".hero h1").innerHTML = text.heroTitle;
   setText(".hero-copy>p", text.heroDescription);
