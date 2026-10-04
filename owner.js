@@ -65,10 +65,12 @@ function resetOtp(){
   phoneForm.classList.remove("hidden");
   document.getElementById("useAnotherPhone").classList.add("hidden");
   document.getElementById("ownerOtp").value = "";
+  setStatus("");
   if(recaptcha){
     recaptcha.clear();
     recaptcha = null;
   }
+  document.getElementById("ownerPhone").focus();
 }
 
 function createShopEditor(shopId, shop){

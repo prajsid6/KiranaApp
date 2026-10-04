@@ -73,10 +73,12 @@ function resetOtp(){
   phoneForm.classList.remove("hidden");
   document.getElementById("useAnotherPhone").classList.add("hidden");
   document.getElementById("reviewerOtp").value = "";
+  setStatus("");
   if(recaptcha){
     recaptcha.clear();
     recaptcha = null;
   }
+  document.getElementById("reviewerPhone").focus();
 }
 
 function createRequestCard(requestId, request){
