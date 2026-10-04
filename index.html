@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f766e">
+  <title>KiranaNear — Local Kirana Stores</title>
+  <meta name="description" content="Find local Kirana shops near you and discover available items, timings and contact details.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container nav">
+      <a class="brand" href="#"><span class="brand-mark">K</span><span>Kirana<span class="brand-accent">Near</span></span></a>
+      <div class="nav-actions">
+        <button id="languageToggle" class="language-toggle" type="button" aria-label="Switch language to Kannada">ಕನ್ನಡ</button>
+        <button id="ownerLoginButton" class="owner-login-btn" type="button">Shop owner login</button>
+        <button class="nav-add" onclick="openModal()">+ Add Your Shop</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <div class="eyebrow">LOCAL • SIMPLE • TRUSTED</div>
+          <h1>Your neighborhood<br><span>kirana, online.</span></h1>
+          <p>Discover nearby grocery shops, check what they offer, and contact them directly on WhatsApp.</p>
+          <div class="search-wrap">
+            <span class="search-icon">⌕</span>
+            <input id="searchInput" type="text" placeholder="Search shops, items or area..." autocomplete="off">
+            <button id="clearBtn" class="clear-btn" aria-label="Clear search">×</button>
+          </div>
+          <div class="hero-stats"><span><b id="shopCount">6</b> shops</span><i></i><span>Local businesses</span><i></i><span>WhatsApp ordering</span></div>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="sun"></div>
+          <div class="store-card">
+            <div class="mini-roof"></div>
+            <div class="store-sign">KIRANA</div>
+            <div class="store-window"><span></span><span></span><span></span></div>
+            <div class="store-door"></div>
+            <div class="plant"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container directory">
+      <div class="section-heading">
+        <div>
+          <p class="kicker">SHOP DIRECTORY</p>
+          <h2>Available shops</h2>
+        </div>
+        <span id="resultText" class="result-text"></span>
+      </div>
+      <div id="shopGrid" class="shop-grid"></div>
+      <div id="emptyState" class="empty hidden">
+        <div class="empty-icon">⌕</div>
+        <h3>No shops found</h3>
+        <p>Try another shop name, item or area.</p>
+      </div>
+    </section>
+
+    <section class="add-section">
+      <div class="container add-inner">
+        <div>
+          <p class="kicker light">GROW YOUR LOCAL BUSINESS</p>
+          <h2>Own a Kirana shop?</h2>
+          <p>Add your shop to this directory. No app or website is required — just send your details through WhatsApp.</p>
+        </div>
+        <button class="primary-btn" onclick="openModal()">Request to add my shop <span>→</span></button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>© 2026 KiranaNear</span>
+      <span>Made for local businesses</span>
+    </div>
+  </footer>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-backdrop" onclick="closeModal()"></div>
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">×</button>
+      <p class="kicker">JOIN THE DIRECTORY</p>
+      <h2 id="modalTitle">Add your shop</h2>
+      <p class="modal-sub">Enter your shop details. We'll prepare a WhatsApp message for you.</p>
+      <form id="shopForm">
+        <label>Shop name<input name="shop" required placeholder="e.g. Sri Lakshmi Stores"></label>
+        <label>Shop image <span>(optional, max 5 MB)</span><input id="shopImage" name="logo" type="file" accept="image/*"><small id="logoStatus" class="field-note">Choose an image file (max 5 MB)</small></label>
+        <label>Contact number<input name="contact" type="tel" required placeholder="+91 98765 43210"></label>
+        <label>Shop address<textarea name="address" required rows="2" placeholder="Street, area, city, PIN code"></textarea></label>
+        <div class="two-col">
+          <label>Opens at<div class="clock-input"><input name="openHour" type="number" min="1" max="12" required value="8" aria-label="Opening hour"><span>:</span><input name="openMinute" type="number" min="0" max="59" required value="0" aria-label="Opening minute"><select name="openPeriod" aria-label="Opening AM or PM"><option selected>AM</option><option>PM</option></select></div></label>
+          <label>Closes at<div class="clock-input"><input name="closeHour" type="number" min="1" max="12" required value="9" aria-label="Closing hour"><span>:</span><input name="closeMinute" type="number" min="0" max="59" required value="0" aria-label="Closing minute"><select name="closePeriod" aria-label="Closing AM or PM"><option>AM</option><option selected>PM</option></select></div></label>
+        </div>
+        <fieldset class="day-picker">
+          <legend>Open days</legend>
+          <div class="day-options">
+            <label><input name="openDays" type="checkbox" value="Mon" checked> Mon</label>
+            <label><input name="openDays" type="checkbox" value="Tue" checked> Tue</label>
+            <label><input name="openDays" type="checkbox" value="Wed" checked> Wed</label>
+            <label><input name="openDays" type="checkbox" value="Thu" checked> Thu</label>
+            <label><input name="openDays" type="checkbox" value="Fri" checked> Fri</label>
+            <label><input name="openDays" type="checkbox" value="Sat" checked> Sat</label>
+            <label><input name="openDays" type="checkbox" value="Sun" checked> Sun</label>
+          </div>
+          <small id="dayError" class="field-note" role="status"></small>
+        </fieldset>
+        <label>Available items<textarea name="items" required rows="3" placeholder="Rice, dal, oil, biscuits, milk..."></textarea></label>
+        <button class="whatsapp-btn" type="submit"><span>◉</span> Send request on WhatsApp</button>
+      </form>
+      <p class="form-note">Your details are not stored by this website.</p>
+    </div>
+  </div>
+
+  <div id="stockModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="stockModalTitle">
+    <div class="modal-backdrop" onclick="closeStockModal()"></div>
+    <div class="modal-box stock-modal-box">
+      <button class="modal-close" onclick="closeStockModal()" aria-label="Close">×</button>
+      <p class="kicker" id="stockModalKicker">STOCK DETAILS</p>
+      <h2 id="stockModalTitle"></h2>
+      <p class="modal-sub" id="stockModalSummary"></p>
+      <ul id="stockItems" class="stock-list"></ul>
+    </div>
+  </div>
+
+  <div id="ownerLoginModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="ownerLoginTitle">
+    <div class="modal-backdrop" data-close-owner-login></div>
+    <section class="modal-box owner-login-box">
+      <button class="modal-close" type="button" data-close-owner-login aria-label="Close">×</button>
+      <p class="kicker" id="ownerLoginKicker">SHOP OWNER</p>
+      <h2 id="ownerLoginTitle">Shop owner login</h2>
+      <p class="modal-sub" id="ownerLoginDescription">Verify your shop phone number to open its profile.</p>
+      <form id="ownerPhoneForm">
+        <label id="ownerPhoneLabel" for="ownerPhone">Phone number</label>
+        <input id="ownerPhone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+91 98765 43210" pattern="[+][1-9][0-9]{7,14}" required>
+        <div id="recaptcha-container"></div>
+        <button class="whatsapp-btn" id="sendOtpButton" type="submit">Send OTP</button>
+      </form>
+      <form id="ownerOtpForm" class="hidden">
+        <label id="ownerOtpLabel" for="ownerOtp">6-digit code</label>
+        <input id="ownerOtp" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+        <button class="whatsapp-btn" id="verifyOtpButton" type="submit">Verify and open profile</button>
+      </form>
+      <button class="owner-back-btn hidden" id="ownerBackButton" type="button">Use another number</button>
+      <p class="field-note owner-login-status" id="ownerLoginStatus" role="status" aria-live="polite"></p>
+      <section id="ownerProfile" class="owner-profile hidden" aria-live="polite">
+        <h3 id="ownerProfileName"></h3>
+        <p id="ownerProfileAddress"></p>
+        <p id="ownerProfileContact"></p>
+      </section>
+      <button class="owner-back-btn hidden" id="ownerSignOutButton" type="button">Sign out</button>
+    </section>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
