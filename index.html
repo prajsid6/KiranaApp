@@ -18,6 +18,7 @@
           <div class="nav-menu-panel">
             <button id="languageToggle" class="language-toggle" type="button" aria-label="Switch language to Kannada">ಕನ್ನಡ</button>
             <a id="ownerLoginLink" class="owner-login-btn" href="owner.html">Shop owner login</a>
+            <a id="adminLoginLink" class="owner-login-btn" href="admin.html">Admin login</a>
           </div>
         </details>
       </div>
@@ -108,11 +109,11 @@
       <button class="modal-close" onclick="closeModal()" aria-label="Close">×</button>
       <p class="kicker">JOIN THE DIRECTORY</p>
       <h2 id="modalTitle">Add your shop</h2>
-      <p class="modal-sub">Enter your shop details. We'll prepare a WhatsApp message for you.</p>
+      <p class="modal-sub">Submit your details for admin review. After approval, manage your shop with the same phone number.</p>
       <form id="shopForm">
         <label>Shop name<input name="shop" required placeholder="e.g. Sri Lakshmi Stores"></label>
         <label>Shop image <span>(optional, max 5 MB)</span><input id="shopImage" name="logo" type="file" accept="image/*"><small id="logoStatus" class="field-note">Choose an image file (max 5 MB)</small></label>
-        <label>Contact number<input name="contact" type="tel" required placeholder="+91 98765 43210"></label>
+        <label>Owner/contact phone<input name="contact" type="tel" required placeholder="+919876543210" pattern="[+][1-9][0-9]{7,14}" aria-describedby="ownerPhoneHelp"><small id="ownerPhoneHelp" class="field-note">Enter the full number with country code and no spaces. Use it for owner login.</small></label>
         <label>Shop address<textarea name="address" required rows="2" placeholder="Street, area, city, PIN code"></textarea></label>
         <div class="two-col">
           <label>Opens at<div class="clock-input"><input name="openHour" type="number" min="1" max="12" required value="8" aria-label="Opening hour"><span>:</span><input name="openMinute" type="number" min="0" max="59" required value="0" aria-label="Opening minute"><select name="openPeriod" aria-label="Opening AM or PM"><option selected>AM</option><option>PM</option></select></div></label>
@@ -132,7 +133,7 @@
           <small id="dayError" class="field-note" role="status"></small>
         </fieldset>
         <label>Available items<textarea name="items" required rows="3" placeholder="Rice, dal, oil, biscuits, milk..."></textarea></label>
-        <button class="whatsapp-btn" id="submitShopRequest" type="submit">Send shop request for review</button>
+        <button class="whatsapp-btn" id="submitShopRequest" type="submit">Submit shop for admin review</button>
       </form>
       <p class="form-note" id="requestStatus" role="status" aria-live="polite">Your request will be reviewed before it is published.</p>
     </div>

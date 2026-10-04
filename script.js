@@ -1,7 +1,7 @@
 const initialShops = [
-  {name:"Sri Lakshmi Stores", area:"Koramangala", phone:"919876543210", ownerPhone:"919876543210", openTime:"07:00", closeTime:"22:00", openDays:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], items:["Rice","Dal","Oil","Sugar","Biscuits","Milk"], logo:""},
-  {name:"Namma Daily Needs", area:"HSR Layout", phone:"919812345678", ownerPhone:"919812345678", openTime:"08:00", closeTime:"21:30", openDays:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], items:["Groceries","Snacks","Beverages","Soap","Shampoo","Oil","Sugar","Biscuits","Milk"], logo:""},
-  {name:"Ganesh Provision Store", area:"BTM Layout", phone:"919900112233", ownerPhone:"919900112233", openTime:"07:30", closeTime:"21:00", openDays:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], items:["Rice","Flour","Spices","Oil","Dry Fruits"], logo:""},
+  {name:"Sri Lakshmi Stores", area:"Koramangala", phone:"919876543210", openTime:"07:00", closeTime:"22:00", openDays:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], items:["Rice","Dal","Oil","Sugar","Biscuits","Milk"], logo:""},
+  {name:"Namma Daily Needs", area:"HSR Layout", phone:"919812345678", openTime:"08:00", closeTime:"21:30", openDays:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], items:["Groceries","Snacks","Beverages","Soap","Shampoo","Oil","Sugar","Biscuits","Milk"], logo:""},
+  {name:"Ganesh Provision Store", area:"BTM Layout", phone:"919900112233", openTime:"07:30", closeTime:"21:00", openDays:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], items:["Rice","Flour","Spices","Oil","Dry Fruits"], logo:""},
 ];
 
 const grid = document.getElementById("shopGrid");
@@ -20,9 +20,10 @@ let shops = [...initialShops];
 const translations = {
   en: {
     ownerLogin: "Shop owner login",
+    adminLogin: "Admin login",
     requestAdd: "Request to add my shop",
-    requestPending: "Send shop request for review",
-    requestSuccess: "Your shop request was submitted. It will appear after verification.",
+    requestPending: "Submit shop for admin review",
+    requestSuccess: "Your shop request was submitted. It will appear after admin approval.",
     requestFailed: "Could not submit your request. Please try again.",
     firebaseNotConfigured: "Shop request submission is not configured yet. Please contact the site administrator.",
     directoryNotConfigured: "Online publishing is not configured. Showing featured shops.",
@@ -44,7 +45,7 @@ const translations = {
     footer: "Made for local businesses, and the people who love them.",
     joinDirectory: "JOIN THE DIRECTORY",
     modalTitle: "Add your shop",
-    modalSub: "Enter your details. A reviewer will verify your shop before it is published.",
+    modalSub: "Submit your details for admin review. After approval, manage your shop with the same phone number.",
     view: "View",
     viewStock: "View stock details",
     stockDetails: "STOCK DETAILS",
@@ -71,9 +72,10 @@ const translations = {
   },
   kn: {
     ownerLogin: "ಅಂಗಡಿ ಮಾಲೀಕರ ಲಾಗಿನ್",
+    adminLogin: "ನಿರ್ವಾಹಕ ಲಾಗಿನ್",
     requestAdd: "ನನ್ನ ಅಂಗಡಿ ಸೇರಿಸಲು ವಿನಂತಿಸಿ",
-    requestPending: "ಪರಿಶೀಲನೆಗಾಗಿ ಅಂಗಡಿ ವಿನಂತಿ ಕಳುಹಿಸಿ",
-    requestSuccess: "ನಿಮ್ಮ ಅಂಗಡಿ ವಿನಂತಿಯನ್ನು ಕಳುಹಿಸಲಾಗಿದೆ. ಪರಿಶೀಲನೆಯ ನಂತರ ಪಟ್ಟಿ ಮಾಡಲಾಗುತ್ತದೆ.",
+    requestPending: "ನಿರ್ವಾಹಕರ ಪರಿಶೀಲನೆಗಾಗಿ ಅಂಗಡಿ ಸಲ್ಲಿಸಿ",
+    requestSuccess: "ನಿಮ್ಮ ಅಂಗಡಿ ವಿನಂತಿಯನ್ನು ಕಳುಹಿಸಲಾಗಿದೆ. ನಿರ್ವಾಹಕರ ಅನುಮೋದನೆಯ ನಂತರ ಪಟ್ಟಿ ಮಾಡಲಾಗುತ್ತದೆ.",
     requestFailed: "ವಿನಂತಿಯನ್ನು ಕಳುಹಿಸಲಾಗಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
     firebaseNotConfigured: "ಅಂಗಡಿ ವಿನಂತಿ ಸಲ್ಲಿಕೆ ಇನ್ನೂ ಹೊಂದಿಸಿಲ್ಲ. ದಯವಿಟ್ಟು ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.",
     directoryNotConfigured: "ಆನ್‌ಲೈನ್ ಪ್ರಕಟಣೆ ಹೊಂದಿಸಿಲ್ಲ. ವೈಶಿಷ್ಟ್ಯಗೊಳಿಸಿದ ಅಂಗಡಿಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ.",
@@ -95,7 +97,7 @@ const translations = {
     footer: "ಸ್ಥಳೀಯ ವ್ಯಾಪಾರಗಳಿಗಾಗಿ ಮತ್ತು ಅವುಗಳನ್ನು ಪ್ರೀತಿಸುವ ಜನರಿಗಾಗಿ.",
     joinDirectory: "ಅಂಗಡಿಗಳ ಪಟ್ಟಿಗೆ ಸೇರಿ",
     modalTitle: "ನಿಮ್ಮ ಅಂಗಡಿ ಸೇರಿಸಿ",
-    modalSub: "ನಿಮ್ಮ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ. ಪ್ರಕಟಿಸುವ ಮೊದಲು ಪರಿಶೀಲಕರು ಅಂಗಡಿಯನ್ನು ಪರಿಶೀಲಿಸುತ್ತಾರೆ.",
+    modalSub: "ನಿರ್ವಾಹಕರ ಪರಿಶೀಲನೆಗಾಗಿ ನಿಮ್ಮ ವಿವರಗಳನ್ನು ಕಳುಹಿಸಿ. ಅನುಮೋದನೆಯ ನಂತರ ಅದೇ ಫೋನ್ ಸಂಖ್ಯೆಯಿಂದ ನಿಮ್ಮ ಅಂಗಡಿಯನ್ನು ನಿರ್ವಹಿಸಿ.",
     view: "ವೀಕ್ಷಿಸಿ",
     viewStock: "ಸ್ಟಾಕ್ ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ",
     stockDetails: "ಸ್ಟಾಕ್ ವಿವರಗಳು",
@@ -163,6 +165,7 @@ function applyLanguage(){
   document.querySelector(".modal-close").setAttribute("aria-label", text.close);
   document.querySelector("#stockModal .modal-close").setAttribute("aria-label", text.close);
   document.getElementById("ownerLoginLink").textContent = text.ownerLogin;
+  document.getElementById("adminLoginLink").textContent = text.adminLogin;
   clear.setAttribute("aria-label", text.clear);
   doSearch();
 }
@@ -359,6 +362,7 @@ document.getElementById("shopForm").addEventListener("submit", async event=>{
     await sdk.setDoc(requestReference, {
       name: data.shop.trim(),
       phone: data.contact.trim().replace(/\D/g, ""),
+      ownerPhone: data.contact.trim(),
       address: data.address.trim(),
       openTime: opening,
       closeTime: closing,

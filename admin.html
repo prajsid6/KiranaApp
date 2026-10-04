@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f766e">
+  <title>Admin login — Kirana Store</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container nav">
+      <a class="brand" href="index.html"><span class="brand-mark">K</span><span>Kirana <span class="brand-accent">Store</span></span></a>
+      <div class="nav-actions">
+        <a class="owner-login-btn" href="index.html">Back to directory</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container owner-dashboard">
+    <section class="owner-intro">
+      <p class="kicker">SHOP ONBOARDING</p>
+      <h1>Admin login</h1>
+      <p>Review shop onboarding requests and publish approved shops to the directory.</p>
+    </section>
+
+    <section class="owner-login-panel" id="ownerLoginPanel">
+      <form id="reviewerPhoneForm">
+        <label for="reviewerPhone">Admin phone number (+country code)</label>
+        <input id="reviewerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+91 98765 43210" pattern="[+][1-9][0-9]{7,14}" required>
+        <div id="reviewer-recaptcha"></div>
+        <button class="primary-btn reviewer-submit" id="sendReviewerOtp" type="submit">Send verification code</button>
+      </form>
+      <form id="reviewerOtpForm" class="hidden">
+        <label for="reviewerOtp">6-digit verification code</label>
+        <input id="reviewerOtp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+        <button class="primary-btn reviewer-submit" id="verifyReviewerOtp" type="submit">Verify and sign in</button>
+      </form>
+      <button class="owner-back-btn hidden" id="useAnotherPhone" type="button">Use another number</button>
+    </section>
+
+    <section class="reviewer-dashboard hidden" id="reviewerDashboard">
+      <div class="reviewer-heading">
+        <div>
+          <h2>Requests awaiting review</h2>
+          <p id="reviewerIdentity"></p>
+        </div>
+        <button class="owner-back-btn" id="reviewerSignOut" type="button">Sign out</button>
+      </div>
+      <div id="requestQueue" class="request-queue"></div>
+    </section>
+
+    <p id="reviewerStatus" class="reviewer-status" role="status" aria-live="polite"></p>
+  </main>
+
+  <script src="firebase-config.js"></script>
+  <script type="module" src="admin.js"></script>
+</body>
+</html>

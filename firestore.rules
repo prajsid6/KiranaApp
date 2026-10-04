@@ -1,18 +1,23 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isReviewer() {
+    function isAdmin() {
       return request.auth != null
-        && request.auth.token.phone_number in ['+91REPLACE_WITH_REVIEWER_PHONE'];
+        && request.auth.token.phone_number in ['+91REPLACE_WITH_ADMIN_PHONE'];
+    }
+
+    function isShopOwner(shopId) {
+      return request.auth != null
+        && get(/databases/$(database)/documents/shopOwners/$(shopId)).data.phone == request.auth.token.phone_number;
     }
 
     match /shopRequests/{requestId} {
       allow create: if request.resource.data.keys().hasAll([
-          'name', 'phone', 'address', 'openTime', 'closeTime',
+          'name', 'phone', 'ownerPhone', 'address', 'openTime', 'closeTime',
           'openDays', 'items', 'logo', 'status', 'createdAt'
         ])
         && request.resource.data.keys().hasOnly([
-          'name', 'phone', 'address', 'openTime', 'closeTime',
+          'name', 'phone', 'ownerPhone', 'address', 'openTime', 'closeTime',
           'openDays', 'items', 'logo', 'status', 'createdAt'
         ])
         && request.resource.data.name is string
@@ -22,6 +27,8 @@ service cloud.firestore {
         && request.resource.data.phone.size() >= 8
         && request.resource.data.phone.size() <= 20
         && request.resource.data.phone.matches('[0-9]{8,20}')
+        && request.resource.data.ownerPhone is string
+        && request.resource.data.ownerPhone.matches('[+][1-9][0-9]{7,14}')
         && request.resource.data.address is string
         && request.resource.data.address.size() > 0
         && request.resource.data.address.size() <= 300
@@ -40,9 +47,9 @@ service cloud.firestore {
         && request.resource.data.status == 'pending'
         && request.resource.data.createdAt == request.time;
 
-      allow get, list: if isReviewer();
+      allow get, list: if isAdmin();
 
-      allow update: if isReviewer()
+      allow update: if isAdmin()
         && resource.data.status == 'pending'
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'status', 'reviewedAt', 'reviewedBy'
@@ -56,7 +63,7 @@ service cloud.firestore {
 
     match /shops/{shopId} {
       allow read: if true;
-      allow create, update: if isReviewer()
+      allow create: if isAdmin()
         && request.resource.data.keys().hasAll([
           'name', 'phone', 'address', 'area', 'openTime', 'closeTime',
           'openDays', 'items', 'logo', 'publishedAt'
@@ -65,6 +72,39 @@ service cloud.firestore {
           'name', 'phone', 'address', 'area', 'openTime', 'closeTime',
           'openDays', 'items', 'logo', 'publishedAt'
         ]);
+      allow update: if isAdmin()
+        || (isShopOwner(shopId)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'name', 'phone', 'address', 'area', 'openTime', 'closeTime', 'openDays', 'items'
+          ])
+          && request.resource.data.name is string
+          && request.resource.data.name.size() > 0
+          && request.resource.data.name.size() <= 100
+          && request.resource.data.phone is string
+          && request.resource.data.phone.matches('[0-9]{8,20}')
+          && request.resource.data.address is string
+          && request.resource.data.address.size() > 0
+          && request.resource.data.address.size() <= 300
+          && request.resource.data.area is string
+          && request.resource.data.openTime is string
+          && request.resource.data.closeTime is string
+          && request.resource.data.openDays is list
+          && request.resource.data.openDays.size() >= 1
+          && request.resource.data.openDays.size() <= 7
+          && request.resource.data.items is list
+          && request.resource.data.items.size() >= 1
+          && request.resource.data.items.size() <= 40);
+      allow delete: if false;
+    }
+
+    match /shopOwners/{shopId} {
+      allow get, list: if isAdmin()
+        || (request.auth != null && resource.data.phone == request.auth.token.phone_number);
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasAll(['phone', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['phone', 'createdAt'])
+        && request.resource.data.phone is string
+        && request.resource.data.phone.matches('[+][1-9][0-9]{7,14}');
       allow delete: if false;
     }
   }

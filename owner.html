@@ -19,38 +19,38 @@
 
   <main class="container owner-dashboard">
     <section class="owner-intro">
-      <p class="kicker">SHOP REVIEW</p>
+      <p class="kicker">SHOP MANAGEMENT</p>
       <h1>Shop owner login</h1>
-      <p>Sign in with an approved reviewer phone number to verify shop requests before they are published.</p>
+      <p>Sign in with the phone number submitted for your approved shop to update its details and available items.</p>
     </section>
 
     <section class="owner-login-panel" id="ownerLoginPanel">
-      <form id="reviewerPhoneForm">
-        <label for="reviewerPhone">Reviewer phone number (+country code)</label>
-        <input id="reviewerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+91 98765 43210" pattern="[+][1-9][0-9]{7,14}" required>
-        <div id="reviewer-recaptcha"></div>
-        <button class="primary-btn reviewer-submit" id="sendReviewerOtp" type="submit">Send verification code</button>
+      <form id="ownerPhoneForm">
+        <label for="ownerPhone">Shop owner phone number (+country code)</label>
+        <input id="ownerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+919876543210" pattern="[+][1-9][0-9]{7,14}" required>
+        <div id="owner-recaptcha"></div>
+        <button class="primary-btn reviewer-submit" id="sendOwnerOtp" type="submit">Send verification code</button>
       </form>
-      <form id="reviewerOtpForm" class="hidden">
-        <label for="reviewerOtp">6-digit verification code</label>
-        <input id="reviewerOtp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
-        <button class="primary-btn reviewer-submit" id="verifyReviewerOtp" type="submit">Verify and sign in</button>
+      <form id="ownerOtpForm" class="hidden">
+        <label for="ownerOtp">6-digit verification code</label>
+        <input id="ownerOtp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+        <button class="primary-btn reviewer-submit" id="verifyOwnerOtp" type="submit">Verify and sign in</button>
       </form>
       <button class="owner-back-btn hidden" id="useAnotherPhone" type="button">Use another number</button>
     </section>
 
-    <section class="reviewer-dashboard hidden" id="reviewerDashboard">
+    <section class="reviewer-dashboard hidden" id="ownerDashboard">
       <div class="reviewer-heading">
         <div>
-          <h2>Requests awaiting review</h2>
-          <p id="reviewerIdentity"></p>
+          <h2>Your shops</h2>
+          <p id="ownerIdentity"></p>
         </div>
-        <button class="owner-back-btn" id="reviewerSignOut" type="button">Sign out</button>
+        <button class="owner-back-btn" id="ownerSignOut" type="button">Sign out</button>
       </div>
-      <div id="requestQueue" class="request-queue"></div>
+      <div id="ownedShops" class="owned-shops"></div>
     </section>
 
-    <p id="reviewerStatus" class="reviewer-status" role="status" aria-live="polite"></p>
+    <p id="ownerStatus" class="reviewer-status" role="status" aria-live="polite"></p>
   </main>
 
   <script src="firebase-config.js"></script>
