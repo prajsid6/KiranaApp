@@ -22,7 +22,7 @@ button,input,textarea{font:inherit} button{cursor:pointer}
 .nav-menu summary::-webkit-details-marker{display:none}
 .nav-menu summary:hover,.nav-menu[open] summary{background:var(--mint);border-color:#b9d9d0}
 .nav-menu-panel{position:absolute;top:calc(100% + 9px);right:0;z-index:20;display:grid;gap:8px;min-width:205px;padding:10px;border:1px solid var(--line);border-radius:14px;background:white;box-shadow:var(--shadow)}
-.nav-menu-panel .language-toggle,.nav-menu-panel .owner-login-btn{text-align:left;text-decoration:none}
+.nav-menu-panel .owner-login-btn{text-align:left;text-decoration:none}
 .hero{overflow:hidden;background:linear-gradient(135deg,#f5fbf8 0%,#e6f4ef 100%);border-bottom:1px solid var(--line)}
 .hero-inner{min-height:480px;display:flex;align-items:center;justify-content:space-between;gap:50px;padding:60px 0}
 .hero-copy{max-width:680px;position:relative;z-index:2}
